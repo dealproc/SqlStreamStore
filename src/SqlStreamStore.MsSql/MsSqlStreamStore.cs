@@ -56,6 +56,12 @@
             _appendToStreamSqlMetadata = sqlMetaData.ToArray();
         }
 
+        /// <summary>
+        /// Initializes the underlying storage mechanism.
+        /// </summary>
+        /// <param name="ignoreErrors">Ignore any errors that occur on initialization.</param>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
+        /// <returns></returns>
         public override async Task InitializeStore(
             bool ignoreErrors = false,
             CancellationToken cancellationToken = default(CancellationToken))
@@ -96,6 +102,35 @@
                         await command.ExecuteNonQueryAsync(cancellationToken)
                             .NotOnCapturedContext();
                     }
+                }
+            }
+        }
+
+        /// <summary>
+        ///     Verifies the structure of the underlying storage.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
+        /// <returns>
+        ///     A <see cref="VerifyResult"/> that represents the verifcation of the store.
+        /// </returns>
+        public override async Task<VerifyResult> VerifyStore(CancellationToken cancellationToken = new CancellationToken())
+        {
+            using(var connection = _createConnection())
+            {
+                await connection.OpenAsync(cancellationToken).NotOnCapturedContext();
+                using(var command = new SqlCommand($@"
+                        IF NOT EXISTS (
+                        SELECT  schema_name
+                        FROM    information_schema.schemata
+                        WHERE   schema_name = '{_scripts.Schema}' ) 
+
+                        BEGIN
+                        EXEC sp_executesql N'CREATE SCHEMA {_scripts.Schema}'
+                        END", connection))
+                {
+                    await command
+                        .ExecuteNonQueryAsync(cancellationToken)
+                        .NotOnCapturedContext();
                 }
             }
         }

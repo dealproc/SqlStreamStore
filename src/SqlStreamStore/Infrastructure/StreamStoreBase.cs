@@ -172,5 +172,8 @@ namespace SqlStreamStore.Infrastructure
         public virtual Task InitializeStore(
             bool ignoreErrors = false,
             CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(0);
+
+        public virtual Task<VerifyResult> VerifyStore(
+            CancellationToken cancellationToken = default(CancellationToken)) => Task.FromResult(VerifyResult.Valid());
     }
 }

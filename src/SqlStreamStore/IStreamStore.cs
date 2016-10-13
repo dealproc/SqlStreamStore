@@ -127,5 +127,14 @@
         Task InitializeStore(
             bool ignoreErrors = false,
             CancellationToken cancellationToken = default(CancellationToken));
+
+        /// <summary>
+        ///     Verifies the structure of the underlying storage.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation instruction.</param>
+        /// <returns>
+        ///     A <see cref="VerifyResult"/> that represents the verifcation of the store.
+        /// </returns>
+        Task<VerifyResult> VerifyStore(CancellationToken cancellationToken = default(CancellationToken));
     }
 }

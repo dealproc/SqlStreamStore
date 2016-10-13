@@ -116,6 +116,7 @@
     <Compile Include="Infrastructure\ObservableExtensions.cs" />
     <Compile Include="IStreamSubscription.cs" />
     <Compile Include="Subscriptions\SubscriptionDroppedReason.cs" />
+    <Compile Include="VerifyResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SqlStreamStore.nuspec" />

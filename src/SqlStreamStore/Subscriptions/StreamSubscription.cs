@@ -60,6 +60,7 @@
 
         public int? LastVersion { get; private set; }
 
+        [Obsolete("Will be removed in future version", false)]
         public Task Started => _started.Task;
 
         public int MaxCountPerRead
@@ -74,8 +75,8 @@
             {
                 return;
             }
-            _disposed.Cancel();
             _notification.Dispose();
+            _disposed.Cancel();
         }
 
         private async Task PullAndPush()
