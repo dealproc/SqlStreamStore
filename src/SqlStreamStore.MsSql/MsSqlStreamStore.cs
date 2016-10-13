@@ -14,6 +14,7 @@
 
     public sealed partial class MsSqlStreamStore : StreamStoreBase
     {
+        private readonly MsSqlStreamStoreSettings _settings;
         private readonly Func<SqlConnection> _createConnection;
         private readonly Lazy<IStreamStoreNotifier> _streamStoreNotifier;
         private readonly Scripts _scripts;
@@ -24,6 +25,7 @@
                  settings.GetUtcNow, settings.LogName)
         {
             Ensure.That(settings, nameof(settings)).IsNotNull();
+            _settings = settings;
 
             _createConnection = () => new SqlConnection(settings.ConnectionString);
             _streamStoreNotifier = new Lazy<IStreamStoreNotifier>(() =>
@@ -118,19 +120,14 @@
             using(var connection = _createConnection())
             {
                 await connection.OpenAsync(cancellationToken).NotOnCapturedContext();
-                using(var command = new SqlCommand($@"
-                        IF NOT EXISTS (
-                        SELECT  schema_name
-                        FROM    information_schema.schemata
-                        WHERE   schema_name = '{_scripts.Schema}' ) 
-
-                        BEGIN
-                        EXEC sp_executesql N'CREATE SCHEMA {_scripts.Schema}'
-                        END", connection))
+                using(var command = new SqlCommand(_scripts.VerifySchemaExists, connection))
                 {
-                    await command
-                        .ExecuteNonQueryAsync(cancellationToken)
+                    command.Parameters.AddWithValue("streamId", _settings.Schema);
+                    var x = await command
+                        .ExecuteScalarAsync(cancellationToken)
                         .NotOnCapturedContext();
+
+                    return VerifyResult.Valid();
                 }
             }
         }

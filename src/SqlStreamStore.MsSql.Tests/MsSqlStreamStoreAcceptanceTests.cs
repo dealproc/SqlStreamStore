@@ -20,6 +20,18 @@
         }
 
         [Fact]
+        public async Task Can_verify_schema()
+        {
+            using (var fixture = GetFixture())
+            {
+                using (var store = await fixture.GetStreamStore())
+                {
+                    await store.VerifyStore();
+                }
+            }
+        }
+
+        [Fact]
         public async Task Can_use_multiple_schemas()
         {
             using(var fixture = new MsSqlStreamStoreFixture("dbo"))

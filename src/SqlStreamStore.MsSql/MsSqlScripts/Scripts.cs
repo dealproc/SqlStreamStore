@@ -47,6 +47,8 @@
 
         internal string SetStreamMetadata => GetScript(nameof(SetStreamMetadata));
 
+        internal string VerifySchemaExists => GetScript(nameof(VerifySchemaExists));
+
         private string GetScript(string name)
         {
             return _scripts.GetOrAdd(name,
